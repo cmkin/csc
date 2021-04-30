@@ -1,12 +1,25 @@
 <template>
 	<div>
+		<h1>60期</h1>
 		<p>期数:{{now_term}}</p>
 		<p>号码:{{ longTop }}</p>
-		<div v-if="obj[0] && obj[0].num">
+		
+		<div v-if="obj[0]">
 			<p> 大:{{ obj[0].num }} </p>
 			<p> 小:{{ obj[1].num }} </p>
 			<p> 单:{{ obj[2].num }} </p>
 			<p> 双:{{ obj[3].num }} </p>
+		</div>
+		
+		<h2>100期</h2>
+		
+		<p>号码:{{ longTop2 }}</p>
+		
+		<div v-if="obj2[0]">
+			<p> 大:{{ obj2[0].num }} </p>
+			<p> 小:{{ obj2[1].num }} </p>
+			<p> 单:{{ obj2[2].num }} </p>
+			<p> 双:{{ obj2[3].num }} </p>
 		</div>
 		
 	</div>
@@ -43,7 +56,9 @@
 				money: 20,
 				flag: true,
 				longTop: [],
-				obj:[]
+				obj:[],
+				longTop2: [],
+				obj2:[]
 			}
 		},
 		watch: {
@@ -54,9 +69,11 @@
 		mounted() {
 		
 			this.getdata()
+			this.getdata2()
 
 			setInterval(() => {
 				this.getdata()
+				this.getdata2()
 			}, 1000 * 30)
 		},
 		methods: {
@@ -118,6 +135,86 @@
 					
 					
 					this.obj = obj
+					var maxData  = obj[0];
+					var minData  = obj[0];
+					for (var i = 0; i < obj.length; i++) {
+						if (obj[i].num>maxData.num) {
+							maxData = obj[i];  // 最大值
+						};
+						if (obj[i].num<minData.num) {
+							minData = obj[i];  // 最小值
+						}
+					}
+					
+					if(maxData.num!=minData.num){
+						this.touzhu(maxData.type)
+					}
+						
+				}, error => {
+					console.log(error)
+				}).catch(err => {
+					console.log(err)
+				})
+			},
+			
+			getdata2(){
+				axios.post("m/php/action.php?action=lotterycharts", {
+					pcmn: '6026-172-1',
+					game_type: 'fastbtb28',
+					count_term: '100',
+					version: '200'
+				}).then(res => {
+					let resData = res.data.data.list.reverse()
+					this.now_term = Number(resData[0][0])
+					let datas = resData.map(item=>{
+						return Number(item[2].split(",")[3]) 
+					})
+					
+					
+					
+					let lastNums = [] 
+					
+					datas.map((item,index)=>{
+						if(item==datas[0]){
+							index-1 >=0 ? lastNums.push(datas[index-1]) : '' 
+						}
+					})
+					console.log(lastNums)
+					this.longTop2 = lastNums
+					let obj =[
+						{
+							type:0,
+							num:0
+						},
+						{
+							type:1,
+							num:0
+						},
+						{
+							type:2,
+							num:0
+						},
+						{
+							type:3,
+							num:0
+						}
+					] 
+					
+					lastNums.map(item=>{
+						if(item>13){
+							obj[0].num++
+						}else{
+							obj[1].num++
+						}
+						if(item%2==0){
+							obj[3].num++
+						}else{
+							obj[2].num++
+						}
+					})
+					
+					
+					this.obj2 = obj
 					var maxData  = obj[0];
 					var minData  = obj[0];
 					for (var i = 0; i < obj.length; i++) {
