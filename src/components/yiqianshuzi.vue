@@ -1,7 +1,14 @@
 <template>
 	<div>
+		<p>期数:{{now_term}}</p>
+		<p>号码:{{ longTop }}</p>
+		<div v-if="obj[0] && obj[0].num">
+			<p> 大:{{ obj[0].num }} </p>
+			<p> 小:{{ obj[1].num }} </p>
+			<p> 单:{{ obj[2].num }} </p>
+			<p> 双:{{ obj[3].num }} </p>
+		</div>
 		
-
 	</div>
 </template>
 
@@ -33,9 +40,10 @@
 		data() {
 			return {
 				now_term: 0,
-				money: 50,
+				money: 20,
 				flag: true,
-				longTop: []
+				longTop: [],
+				obj:[]
 			}
 		},
 		watch: {
@@ -48,7 +56,7 @@
 			this.getdata()
 
 			setInterval(() => {
-				//this.getdata()
+				this.getdata()
 			}, 1000 * 30)
 		},
 		methods: {
@@ -56,7 +64,7 @@
 				axios.post("m/php/action.php?action=lotterycharts", {
 					pcmn: '6026-172-1',
 					game_type: 'fastbtb28',
-					count_term: '200',
+					count_term: '60',
 					version: '200'
 				}).then(res => {
 					let resData = res.data.data.list.reverse()
@@ -65,7 +73,7 @@
 						return Number(item[2].split(",")[3]) 
 					})
 					
-					console.log(datas)
+					
 					
 					let lastNums = [] 
 					
@@ -75,6 +83,7 @@
 						}
 					})
 					console.log(lastNums)
+					this.longTop = lastNums
 					let obj =[
 						{
 							type:0,
@@ -107,8 +116,8 @@
 						}
 					})
 					
-					console.log(obj)
 					
+					this.obj = obj
 					var maxData  = obj[0];
 					var minData  = obj[0];
 					for (var i = 0; i < obj.length; i++) {
@@ -123,11 +132,7 @@
 					if(maxData.num!=minData.num){
 						this.touzhu(maxData.type)
 					}
-					console.log(maxData,minData)
-				
-					
-
-					
+						
 				}, error => {
 					console.log(error)
 				}).catch(err => {
@@ -194,9 +199,9 @@
 						break;
 				}
 				
-				console.log(json)
+				console.log(json.content)
 				json.content = JSON.stringify(json.content)
-				
+				return
 				axios.post("m/php/web.php?action=bet", json)
 				this.flag = true
 			}
