@@ -1,18 +1,18 @@
 <template>
 	<div id="app">
-		<yuce></yuce>	
+		<yiqianshuzi></yiqianshuzi>
 		
 	</div>
 </template>
 
 <script>
 	
-		import yuce from './components/yuce.vue'
+		import yiqianshuzi from './components/yiqianshuzi.vue'
 
 	export default {
 		name: 'App',
 		components: {
-			yuce
+			yiqianshuzi
 		},
 		data() {
 			return {
